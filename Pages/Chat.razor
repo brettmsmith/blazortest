@@ -1,0 +1,43 @@
+@page "/chat"
+@using blazortest.Data
+@inject ChatService Service
+
+
+<input type="text" @bind="UserName" placeholder="User"/>
+<input type="text" @bind="Message" placeholder="Message"/>
+<button @onclick="SendMessage">Send</button>
+
+<ul>
+    @foreach (var msg in ChatMessages)
+    {
+        <li>@msg</li>
+    }
+</ul>
+
+
+@code
+{
+    string Message;
+    string UserName;
+    List<string> ChatMessages = new List<string>();
+
+    protected override async Task OnInitAsync()
+    {
+        Service.MessageReceived += ReceiveMessage;
+    }
+
+    private void ReceiveMessage(string message)
+    {
+        ChatMessages.Add(message);
+        Invoke(StateHasChanged);
+    }
+
+    private void SendMessage()
+    {
+        if(!string.IsNullOrEmpty(Message))
+        {
+            Service.Send($"{UserName}: {Message}");
+            Message = string.Empty;
+        }
+    }
+}
